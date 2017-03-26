@@ -2,22 +2,51 @@
 title: "Developing Data Product Assignment Week 3"
 author: "Bert Haak"
 date: "March 25, 2017"
-output: ioslides_presentation
+output:
+  ioslides_presentation: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Developing Data Product
+## Assignment 
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This presentation contains a graph made with plotly of the dataset Wage from the ISLR library.
+The following steps were taken:
+
+1. Made a plot of the data with ggplot2.
+2. Used the ggplotly function from plotly to transform the ggplot to plotly
+3. For practice changed the following plotly parameters directly:
+
+        a. Added a Title to the plot
+        b. changed the Legend of the plot
+        c. Changed the hover text
 
 ***
 
-```{r, message=FALSE, warning=FALSE}
-library(plotly)
-data("mtcars")
-plot_ly(mtcars, x = ~wt, y = ~mpg, type = "scatter", mode = "markers", color = ~factor(cyl), size = ~hp)
+```{r, message=FALSE, cache=TRUE, warning=FALSE, fig.height=5.5 ,fig.width = 8.5}
+library(ggplot2); library(plotly); library(ISLR)
+data(Wage)
+g <- ggplot(data = Wage, aes(x = age, y = wage))
+g <- g + geom_point(size = 2, pch = 21, aes(fill = factor(education)), alpha = 1)
+g <- g + xlab("Age of Worker") + ylab("Workers' raw wage")
+g <- g + labs(fill = "Education")
+g <- g + geom_smooth(formula = y ~ x, method = "lm", aes(colour = factor(education)), show.legend = FALSE)
+p <- ggplotly(g)
+p$x$data[[1]]$name <- "< HS Grad"
+p$x$data[[2]]$name <- "HS Grad"
+p$x$data[[3]]$name <- "College"
+p$x$data[[4]]$name <- "College Grad"
+p$x$data[[5]]$name <- "Advanced Degree"
+p$x$layout$title <- "Mid-Atlantic Wage Data"
+for(i in 1:5){
+        p$x$data[[i]]$text <- gsub("factor\\(education\\)", "Education", p$x$data[[i]]$text)
+        if(i == 1){p$x$data[[i]]$text <- gsub("1. < HS Grad", "< HS Grad", p$x$data[[i]]$text)}
+        if(i == 2){p$x$data[[i]]$text <- gsub("2. HS Grad", "HS Grad", p$x$data[[i]]$text)}
+        if(i == 3){p$x$data[[i]]$text <- gsub("3. Some College", "College", p$x$data[[i]]$text)}
+        if(i == 4){p$x$data[[i]]$text <- gsub("4. College Grad", "College Grad", p$x$data[[i]]$text)}
+        if(i == 5){p$x$data[[i]]$text <- gsub("5. Advanced Degree", "Advanced Degree", p$x$data[[i]]$text)}
+}
+p
 ```
-
